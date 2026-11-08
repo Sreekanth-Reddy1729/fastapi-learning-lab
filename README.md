@@ -118,6 +118,181 @@ Understanding the difference between authentication and authorization.
 - Handling API responses and errors.
 - Understanding the frontend-to-backend communication flow.
 
+- ###Project Flow 
+
+                   ┌──────────────────────────┐
+                   │       END USERS          │
+                   │ Browser / Mobile / React │
+                   └────────────┬─────────────┘
+                                |
+                                v
+                   ┌──────────────────────────┐
+                   │       DNS - ROUTE 53     │
+                   │                          │
+                   │ Domain name resolution  │
+                   │ www.myapp.com            │
+                   │ api.myapp.com            │
+                   └────────────┬─────────────┘
+                                |
+                                v
+                   ┌──────────────────────────┐
+                   │     CDN - CLOUDFRONT     │
+                   │                          │
+                   │ Global Edge Locations    │
+                   │ Content Caching          │
+                   │ Faster Content Delivery  │
+                   └────────────┬─────────────┘
+                                |
+                                v
+                   ┌──────────────────────────┐
+                   │       AWS WAF            │
+                   │                          │
+                   │ SQL Injection Protection │
+                   │ XSS Protection           │
+                   │ IP Filtering             │
+                   │ Rate Limiting Rules      │
+                   └────────────┬─────────────┘
+                                |
+                +---------------+----------------+
+                |                                |
+                v                                v
+       ┌──────────────────┐            ┌──────────────────┐
+       │ FRONTEND DELIVERY│            │  BACKEND TRAFFIC │
+       │                  │            │                  │
+       │ Amazon S3        │            │ Application      │
+       │ HTML / CSS / JS  │            │ Load Balancer    │
+       │ React Build      │            │ (ALB)             │
+       └────────┬─────────┘            └────────┬─────────┘
+                |                               |
+                v                               v
+       ┌──────────────────┐            ┌──────────────────┐
+       │  BROWSER RENDER  │            │  FASTAPI SERVICE │
+       │                  │            │                  │
+       │ Frontend Loaded  │            │ Uvicorn          │
+       │                  │            │ FastAPI          │
+       └────────┬─────────┘            │ Middleware       │
+                |                      │ API Router       │
+                | API Request          └────────┬─────────┘
+                |                               |
+                +------------------------------>|
+                                                v
+                                   ┌────────────────────────┐
+                                   │ AUTHENTICATION LAYER   │
+                                   │                        │
+                                   │ Registration           │
+                                   │ Login                  │
+                                   │ Argon2 Password Verify │
+                                   │ JWT Generation         │
+                                   │ JWT Validation         │
+                                   │ OAuth2 Bearer          │
+                                   └────────────┬───────────┘
+                                                |
+                                                v
+                                   ┌────────────────────────┐
+                                   │ AUTHORIZATION LAYER    │
+                                   │                        │
+                                   │ User Identity          │
+                                   │ Roles / Permissions    │
+                                   │ Access Control         │
+                                   └────────────┬───────────┘
+                                                |
+                                                v
+                                   ┌────────────────────────┐
+                                   │ APPLICATION LAYER      │
+                                   │                        │
+                                   │ Business Logic         │
+                                   │ Product Service        │
+                                   │ User Service           │
+                                   │ Request Validation     │
+                                   │ Pydantic Schemas       │
+                                   └────────────┬───────────┘
+                                                |
+                                                v
+                                   ┌────────────────────────┐
+                                   │ DATA ACCESS LAYER      │
+                                   │                        │
+                                   │ SQLAlchemy ORM         │
+                                   │ Database Session       │
+                                   │ Connection Pool        │
+                                   └────────────┬───────────┘
+                                                |
+                                                v
+                                   ┌────────────────────────┐
+                                   │    DATABASE LAYER      │
+                                   │                        │
+                                   │ PostgreSQL / AWS RDS   │
+                                   │                        │
+                                   │ Users Table            │
+                                   │ Products Table         │
+                                   └────────────────────────┘
+
+
+                  CI/CD AND DEPLOYMENT PIPELINE
+                  =============================
+
+        Developer
+            |
+            v
+        GitHub Repository
+            |
+            v
+        GitHub Actions / Jenkins
+            |
+            v
+        Build Application
+            |
+            v
+        Run Unit Tests
+            |
+            v
+        SonarQube Code Analysis
+            |
+            v
+        Trivy Security Scan
+            |
+            v
+        Docker Image Build
+            |
+            v
+        Push Image to Amazon ECR
+            |
+            v
+        Deploy to ECS / EKS / EC2
+            |
+            v
+        Health Checks
+            |
+            v
+        Load Balancer Sends Traffic
+        to Healthy Instances
+
+
+                  MONITORING AND OBSERVABILITY
+                  ===========================
+
+        Application + Infrastructure
+                    |
+          +---------+----------+
+          |         |          |
+          v         v          v
+       Metrics     Logs      Traces
+          |         |          |
+          v         v          v
+      Prometheus  CloudWatch  OpenTelemetry
+          |         |          |
+          v         v          v
+        Grafana   Dashboards  Trace Backend
+          |         |          |
+          +---------+----------+
+                    |
+                    v
+              ALERT MANAGER
+                    |
+                    v
+             Developer / DevOps
+```
+
+
 ## 📂 Project Structure
 
 ```text
